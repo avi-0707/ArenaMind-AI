@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - FRONTEND_URL=http://localhost:8081
+      - ENVIRONMENT=production
+    # Remove volume mapping to use the container's built image
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-8081}:8080"
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+    # Remove volume mapping since this is a production multi-stage build
