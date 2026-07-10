@@ -32,7 +32,7 @@ export function Layout() {
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card">
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Sparkles className="w-6 h-6 text-primary mr-2" />
-          <span className="font-bold text-lg tracking-tight">Co-Pilot AI</span>
+          <span className="font-bold text-lg tracking-tight">ArenaMind AI</span>
         </div>
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 relative">
           {navItems.map((item) => {
@@ -68,10 +68,10 @@ export function Layout() {
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              JS
+              AD
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">Jane Smith</span>
+              <span className="text-sm font-medium">Abhirup De</span>
               <span className="text-xs text-muted-foreground">Admin</span>
             </div>
           </div>
@@ -107,7 +107,7 @@ export function Layout() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card"></span>
             </button>
             <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              JS
+              AD
             </div>
           </div>
         </header>
