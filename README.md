@@ -1,103 +1,101 @@
-# ArenaMind AI - Volunteer Co-Pilot & Command Center
+# ArenaMind AI 🏟️ 
 
-ArenaMind AI is a premium stadium operations platform designed for large-scale events like the FIFA World Cup 2026. It provides real-time heatmap diagnostics, dynamic crowd density tracking, AI-powered operational recommendations, and a centralized Field Operations command network.
+**The Autonomous Decision Intelligence Platform for FIFA World Cup 2026 Operations.**
 
-## Key Features
-- **Dynamic Heatmap & Diagnostics**: Interactive stadium visualization with live risk monitoring.
-- **Premium AI Operations**: Context-aware recommendations for congestion, medical, and security incidents.
-- **Field Operations Network**: Centralized command dispatch to connected devices (Volunteer, Medical, Security, Transport, Maintenance, Operations, Supervisor, Police, Fire & Emergency, Accessibility Team).
-- **MatchDay Operations Ingestion**: Upload scheduling datasets (CSV, Excel, JSON) or manually enter incidents.
-- **Executive Dashboard**: Real-time metrics, simulation controls (weather, crowd surges), and AI summaries.
+![ArenaMind AI Banner](https://img.shields.io/badge/Status-Release_Candidate-success) ![React](https://img.shields.io/badge/React-18-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal) ![Gemini](https://img.shields.io/badge/AI-Gemini_2.5_Flash-orange)
 
-## Screenshots
+ArenaMind AI transforms complex stadium telemetry into actionable, executive-level decision intelligence. It is a premium digital twin platform designed specifically to optimize crowd dynamics, volunteer deployment, security, and accessibility for large-scale mega-events like the FIFA World Cup.
 
-### 1. Executive Operations Dashboard
-![Executive Operations Dashboard](ScreenShot%201%20arenamind%20AI.png)
+---
 
-### 2. MatchDay Operations Ingestion
-![MatchDay Ingestion](ScreenShot%202%20arenamind%20AI.png)
+## 🌟 Key Features
 
-### 3. Field Operations Network & Dispatch
-![Field Operations](ScreenShot%203%20arenamind%20AI.png)
+- **Operational Digital Twin**: Real-time modeling of crowd flow, volunteer allocation, and network health.
+- **Tournament Intelligence Engine**: An autonomous ledger that archives matches and incrementally learns from operational successes and failures to improve future recommendations.
+- **AI Strategy Lab**: Generates multi-variant tactical plans (Aggressive, Balanced, Conservative) with complete explainability, expected recovery times, and historical precedent.
+- **Executive Mission Control**: A unified dashboard tracking the global Readiness Score, active incidents, and predictive bottlenecks.
+- **MatchDay Companion & Ops Copilot**: Context-aware AI assistants for both fans and field staff.
+- **Dynamic Notification Center**: A global event stream capturing critical alerts and AI-generated intelligence in real-time.
 
-### 4. Co-Pilot AI Diagnostics & Recommendations
-![Co-Pilot AI Diagnostics](ScreenShot%204%20arenamind%20AI.png)
+---
 
-### 5. Interactive MatchDay Companion
-![MatchDay Companion](ScreenShot%205%20arenamind%20AI.png)
+## 🏗 Architecture
 
-## Tech Stack
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Framer Motion, Zustand
-- **Backend**: Python, FastAPI, Pandas, Pydantic
-- **AI Integration**: Google Gemini API
-- **Deployment**: Docker, Google Cloud Run
+ArenaMind AI utilizes a decoupled modern architecture:
 
-## Project Structure
-- `frontend/`: Vite + React application
-- `backend/`: FastAPI service and API routes
-- `backend/app/api/`: Endpoint definitions
-- `backend/app/services/`: Preprocessing and Gemini service logic
-- `backend/test_files/`: Example datasets for upload testing
+1. **Frontend (React + Vite + Zustand)**: High-performance, 60fps rendering with Framer Motion for premium micro-interactions. TailwindCSS drives a dark/light mode enterprise aesthetic.
+2. **Backend (Python + FastAPI)**: A high-concurrency API layer validating telemetry via Pydantic and interacting with Google's Gemini models.
+3. **AI Layer (Google Gemini 2.5 Flash)**: Powers the Strategy Lab, Ops Copilot, and MatchDay Companion with near-instant reasoning capabilities.
 
-## Local Development Setup
+---
 
-### 1. Environment Variables
-Copy the `.env.example` file and configure it:
+## 💻 Tech Stack
+
+- **Frontend**: React 18, Vite, TypeScript, TailwindCSS, Zustand, Framer Motion, Chart.js, Lucide React.
+- **Backend**: Python 3.10+, FastAPI, Pandas, Pydantic, Uvicorn.
+- **AI**: Google GenAI SDK (`gemini-2.5-flash`).
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+- Google Gemini API Key
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/arenamind-ai.git
+   cd arenamind-ai
+   ```
+
+2. **Setup Backend**
+   ```bash
+   cd backend
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   
+   # Create a .env file and add your Gemini API Key
+   echo "GEMINI_API_KEY=your_api_key_here" > .env
+   
+   # Run the server
+   uvicorn app.main:app --reload --host 0.0.0.1 --port 9999
+   ```
+
+3. **Setup Frontend**
+   ```bash
+   cd frontend
+   npm install
+   
+   # Run the development server
+   npm run dev
+   ```
+
+---
+
+## 🐳 Docker Deployment
+
+To run the entire stack using Docker Compose:
+
 ```bash
-cp .env.example .env
+docker-compose up --build
 ```
-Make sure to add your `GEMINI_API_KEY`.
+*The frontend will be available at `http://localhost:5173` and the backend at `http://localhost:9999`.*
 
-### 2. Run with Docker Compose
-From the project root:
-```bash
-docker compose up --build
-```
-- Frontend runs on `http://localhost:8081`
-- Backend runs on `http://localhost:8080`
+---
 
-### 3. Manual Local Run
-**Backend**:
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate  # On Windows use .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8080
-```
+## 🔮 Future Roadmap
 
-**Frontend**:
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- **Multi-Stadium Orchestration**: Connect multiple digital twins to a central FIFA command.
+- **Live Drone Feed Analysis**: Integrate computer vision for real-time crowd density validation.
+- **Automated Volunteer Dispatch**: Direct integration with wearable devices to dispatch field teams autonomously.
 
-## Cloud Run Deployment
+---
 
-Both the Frontend and Backend are optimized for **Google Cloud Run** using `PORT` bindings and non-root users.
+## 📄 License
 
-### Backend Deployment
-```bash
-cd backend
-gcloud run deploy arenamind-backend \
-  --source . \
-  --allow-unauthenticated \
-  --set-env-vars GEMINI_API_KEY=your_key_here,ENVIRONMENT=production
-```
-
-### Frontend Deployment
-```bash
-cd frontend
-gcloud run deploy arenamind-frontend \
-  --source . \
-  --allow-unauthenticated \
-  --set-env-vars VITE_API_URL=https://your-backend-url.run.app/api
-```
-
-## API Health Check
-The backend includes a health endpoint for Cloud Run monitoring:
-- `GET /api/health` returns status, uptime, environment, and Gemini integration status.
-
-## License
-MIT License. See `LICENSE` for details.
+This project is licensed under the MIT License - see the LICENSE file for details.

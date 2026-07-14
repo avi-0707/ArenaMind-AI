@@ -13,7 +13,10 @@ import {
 import { Line as LineChart } from 'react-chartjs-2';
 import { Card } from '../components/ui/Card';
 import { PageTransition } from '../components/layout/PageTransition';
-import { Users, AlertTriangle, UserCheck, Activity, MapPin, Brain, TrendingUp, Clock, ShieldAlert, HeartPulse, Accessibility, Car, Zap, Megaphone, Shield, FileText, Radio } from 'lucide-react';
+import { TimelineFeed } from '../components/ui/TimelineFeed';
+import { PredictiveDashboard } from '../components/ui/PredictiveDashboard';
+import { AIThreatMatrix } from '../components/ui/AIThreatMatrix';
+import { Users, AlertTriangle, UserCheck, Activity, MapPin, Brain, TrendingUp, Clock, ShieldAlert, HeartPulse, Accessibility, Car, Zap, Megaphone, Shield, Radio, Archive } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,7 +69,7 @@ const AnimatedCounter = React.memo(({ value }: { value: number }) => {
 
 export function Dashboard() {
   const { theme } = useTheme();
-  const { getProcessedData, data, stadiumConfig, simulationSettings, setSimulationSettings, getProcessedDevices, commands } = useStore();
+  const { getProcessedData, data, stadiumConfig, simulationSettings, setSimulationSettings, getProcessedDevices, commands, archiveSimulation } = useStore();
   const processedData = getProcessedData();
   
   const [selectedGate, setSelectedGate] = useState<string | null>(null);
@@ -578,7 +581,15 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="mt-8">
+        <PredictiveDashboard />
+      </div>
+
+      <div className="mt-8">
+        <AIThreatMatrix />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         {/* Executive Summary Card */}
         <Card title="Executive AI Summary" className="lg:col-span-1 relative overflow-hidden bg-gradient-to-br from-background to-muted/20">
           <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -623,9 +634,9 @@ export function Dashboard() {
               <ShieldAlert size={24} className="mb-2" />
               <span className="text-sm font-semibold text-center">Emergency Mode</span>
             </motion.button>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handleAction('Executive Report')} className="flex flex-col items-center justify-center p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl hover:bg-purple-500/20 transition-colors text-purple-600 dark:text-purple-400">
-              <FileText size={24} className="mb-2" />
-              <span className="text-sm font-semibold text-center">Generate Report</span>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { archiveSimulation(); toast.success('Simulation Archived to Memory Engine'); }} className="flex flex-col items-center justify-center p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl hover:bg-purple-500/20 transition-colors text-purple-600 dark:text-purple-400">
+              <Archive size={24} className="mb-2" />
+              <span className="text-sm font-semibold text-center">Archive & Learn</span>
             </motion.button>
           </div>
         </Card>
@@ -676,12 +687,19 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* General charts overview */}
-      <Card title="Stadium Density Trend">
-        <div className="h-48 w-full mt-4">
-          <LineChart key={theme + simulationSettings.crowdMultiplier} data={chartData} options={chartOptions as any} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {/* General charts overview */}
+          <Card title="Stadium Density Trend">
+            <div className="h-[300px] w-full mt-4">
+              <LineChart key={theme + simulationSettings.crowdMultiplier} data={chartData} options={chartOptions as any} />
+            </div>
+          </Card>
         </div>
-      </Card>
+        <div className="lg:col-span-1">
+          <TimelineFeed />
+        </div>
+      </div>
 
     </PageTransition>
   );

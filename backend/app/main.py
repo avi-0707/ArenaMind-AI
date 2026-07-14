@@ -55,4 +55,4 @@ def health_check():
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to Volunteer Co-Pilot AI API"}
+    return {"message": "Welcome to ArenaMind AI API"}

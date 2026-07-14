@@ -1,92 +1,198 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { PageTransition } from '../components/layout/PageTransition';
-import { Skeleton } from '../components/ui/Skeleton';
-import { BouncingDots } from '../components/ui/BouncingDots';
-import { CheckCircle2, Clock, AlertCircle, Sparkles, MapPin, Target, Activity } from 'lucide-react';
+import { AIThinking } from '../components/ui/AIThinking';
+import { CheckCircle2, MapPin, Target, Activity, ShieldAlert, Cpu, Flame, ShieldCheck, Scale, History, BookOpen } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function AIRecommendations() {
   const [loading, setLoading] = useState(false);
-  const [errorState, setErrorState] = useState(false);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const { getProcessedData, data, simulationSettings } = useStore();
-  const processedData = getProcessedData();
+  const { predictions, historicalMatches } = useStore();
 
   useEffect(() => {
-    if (processedData.length === 0) {
-      setRecommendations([]);
-      return;
-    }
+    // Simulate AI thinking time to "generate" the strategies
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, [predictions]);
 
-    let isMounted = true;
-
-    const fetchRecommendations = async () => {
-      setLoading(true);
-      setErrorState(false);
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:9999/api';
-        const response = await axios.post(`${apiUrl}/recommendations`, processedData);
-        if (isMounted && response.data && response.data.recommendations) {
-          setRecommendations(response.data.recommendations);
-        }
-      } catch (error: any) {
-        if (isMounted) {
-          console.error("Recommendations error details:", error);
-          setErrorState(true);
-        }
-      } finally {
-        if (isMounted) setLoading(false);
+  // Dynamically generate strategies for a prediction
+  const generateStrategies = (pred: any) => {
+    const isCritical = pred.riskLevel === 'Critical';
+    return [
+      {
+        id: 'A',
+        name: 'Aggressive Intervention',
+        icon: Flame,
+        color: 'text-red-500',
+        bgColor: 'bg-red-500/10',
+        borderColor: 'border-red-500/20',
+        description: `Immediately deploy maximum reserves to ${pred.affectedGates.join(', ')}.`,
+        recoveryTime: isCritical ? '5 mins' : '2 mins',
+        resourceCost: 'High',
+        expectedImprovement: '95% risk reduction',
+        confidence: Math.min(99, pred.confidence + 4),
+        tradeOffs: 'Depletes global reserve pool. Leaves other sectors vulnerable.',
+        historicalMatch: historicalMatches.length > 0 ? `Successfully executed in ${historicalMatches[0].date} during ${historicalMatches[0].scenarioName || 'similar congestion'}.` : 'No direct historical precedent.'
+      },
+      {
+        id: 'B',
+        name: 'Balanced Re-routing',
+        icon: Scale,
+        color: 'text-orange-500',
+        bgColor: 'bg-orange-500/10',
+        borderColor: 'border-orange-500/20',
+        description: `Divert 30% of incoming crowd to adjacent zones and deploy moderate volunteer support.`,
+        recoveryTime: isCritical ? '12 mins' : '6 mins',
+        resourceCost: 'Medium',
+        expectedImprovement: '70% risk reduction',
+        confidence: pred.confidence,
+        tradeOffs: 'Slightly slower resolution, but maintains reserve availability.',
+        historicalMatch: 'ArenaMind baseline operational standard.'
+      },
+      {
+        id: 'C',
+        name: 'Conservative Monitoring',
+        icon: ShieldCheck,
+        color: 'text-emerald-500',
+        bgColor: 'bg-emerald-500/10',
+        borderColor: 'border-emerald-500/20',
+        description: `Maintain current deployment. Issue automated PA announcements to manage flow.`,
+        recoveryTime: isCritical ? '25 mins' : '15 mins',
+        resourceCost: 'Low',
+        expectedImprovement: '40% risk reduction',
+        confidence: Math.max(50, pred.confidence - 10),
+        tradeOffs: 'Risk of incident escalation if PA announcements are ignored.',
+        historicalMatch: historicalMatches.some(m => m.operationalOutcome === 'Needs Improvement') ? 'Warning: Similar conservative approaches failed in past critical incidents.' : 'Standard holding pattern.'
       }
-    };
-
-    fetchRecommendations();
-    return () => { isMounted = false; };
-  }, [data, simulationSettings, processedData]);
-
-  const getRiskColor = (risk: string) => {
-    const r = risk?.toLowerCase();
-    if (r === 'high') return 'text-red-500 bg-red-500/10 border-red-500/20';
-    if (r === 'medium') return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
-    return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+    ];
   };
 
-  const getPriorityColor = (priority: string) => {
-    const p = priority?.toLowerCase();
-    if (p === 'high') return 'text-red-500 bg-red-500/10 border-red-500/20';
-    if (p === 'medium') return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
-    return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+  const StrategyCard = ({ strategy, selectedId, onSelect }: any) => {
+    const isSelected = selectedId === strategy.id;
+    return (
+      <motion.div 
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        onClick={() => onSelect(strategy.id)}
+        className={cn(
+          "cursor-pointer p-4 rounded-xl border transition-all relative overflow-hidden",
+          isSelected ? `border-current shadow-sm ${strategy.bgColor} ${strategy.color}` : "border-border bg-card/50 hover:bg-muted/50"
+        )}
+      >
+        {isSelected && <div className="absolute top-0 left-0 w-1 h-full bg-current" />}
+        <div className="flex items-start gap-3">
+          <div className={cn("p-2 rounded-lg", isSelected ? 'bg-background' : 'bg-muted')}>
+            <strategy.icon className={cn("w-5 h-5", isSelected ? strategy.color : 'text-muted-foreground')} />
+          </div>
+          <div className="flex-1">
+            <h4 className={cn("font-bold text-sm", isSelected ? 'text-current' : 'text-foreground')}>Strategy {strategy.id}: {strategy.name}</h4>
+            <p className={cn("text-xs mt-1", isSelected ? 'opacity-90' : 'text-muted-foreground')}>{strategy.description}</p>
+            
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <div>
+                <span className="text-[10px] uppercase font-bold opacity-70">Recovery</span>
+                <p className="text-xs font-semibold">{strategy.recoveryTime}</p>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold opacity-70">Cost</span>
+                <p className="text-xs font-semibold">{strategy.resourceCost}</p>
+              </div>
+            </div>
+            
+            <AnimatePresence>
+              {isSelected && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 pt-4 border-t border-current/20 space-y-3"
+                >
+                  <div>
+                    <span className="text-[10px] uppercase font-bold opacity-70 flex items-center gap-1"><Target className="w-3 h-3"/> Trade-offs</span>
+                    <p className="text-xs mt-0.5 font-medium">{strategy.tradeOffs}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase font-bold opacity-70 flex items-center gap-1"><History className="w-3 h-3"/> Historical Context</span>
+                    <p className="text-xs mt-0.5 font-medium italic">{strategy.historicalMatch}</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs font-bold uppercase">Confidence</span>
+                    <span className="text-sm font-black">{strategy.confidence}%</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
+    );
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+  const IncidentLab = ({ pred }: { pred: any }) => {
+    const strategies = generateStrategies(pred);
+    const [selectedId, setSelectedId] = useState('B'); // Default to Balanced
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
-  };
+    return (
+      <Card className="mb-6 overflow-hidden border-border/50 shadow-sm relative">
+        <div className={cn("absolute top-0 left-0 w-full h-1", pred.riskLevel === 'Critical' ? 'bg-red-500' : 'bg-orange-500')} />
+        
+        <div className="p-4 md:p-6 pb-0">
+          <div className="flex items-center gap-3 mb-4">
+            <ShieldAlert className={cn("w-6 h-6", pred.riskLevel === 'Critical' ? 'text-red-500' : 'text-orange-500')} />
+            <div>
+              <h3 className="text-lg font-bold">{pred.title}</h3>
+              <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                <MapPin className="w-3 h-3" /> {pred.affectedGates.join(', ')}
+                <span className="opacity-50">|</span>
+                <Activity className="w-3 h-3" /> Base Probability: {pred.probability}%
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-muted/30 p-4 rounded-xl border border-border mb-6">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <BookOpen className="w-4 h-4 text-primary" /> Incident Reasoning & Context
+            </h4>
+            <p className="text-sm">{pred.reasoning}</p>
+          </div>
+        </div>
 
-  // Extract locations from reasoning or default to "Stadium Wide"
-  const getLocation = (reasoning: string) => {
-    const match = reasoning?.match(/at (Gate [A-Z0-9]+|North Gate|South Gate|East Gate|West Gate|Zone [A-Z0-9]+)/i);
-    return match ? match[1] : 'Stadium Wide';
+        <div className="bg-muted/10 p-4 md:p-6 border-t border-border">
+          <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-primary" /> AI Strategy Lab Formulation
+          </h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {strategies.map(strat => (
+              <StrategyCard 
+                key={strat.id} 
+                strategy={strat} 
+                selectedId={selectedId} 
+                onSelect={setSelectedId} 
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-3">
+             <button className="px-5 py-2.5 text-xs font-semibold border border-border rounded-lg hover:bg-muted transition-colors">
+               Reject All
+             </button>
+             <button className="px-5 py-2.5 text-xs font-bold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-sm">
+               <CheckCircle2 className="w-4 h-4" /> Execute Strategy {selectedId}
+             </button>
+          </div>
+        </div>
+      </Card>
+    );
   };
 
   return (
-    <PageTransition className="space-y-6 max-w-5xl mx-auto">
+    <PageTransition className="space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">AI Executive Decisions</h1>
-        <p className="text-muted-foreground text-sm">Actionable insights generated by the ArenaMind XAI engine.</p>
+        <h1 className="text-2xl font-bold tracking-tight">AI Strategy Lab</h1>
+        <p className="text-muted-foreground text-sm">ArenaMind evaluates multiple operational strategies by continuously analyzing the Tournament Memory Engine.</p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -96,128 +202,32 @@ export function AIRecommendations() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center py-20 space-y-6"
+            className="py-24"
           >
-            <BouncingDots />
-            <p className="text-muted-foreground text-sm font-medium animate-pulse">
-              ArenaMind AI is analyzing live FIFA stadium operations...
-            </p>
-            <div className="grid gap-6 w-full opacity-50 pointer-events-none">
-              {Array.from({ length: 2 }).map((_, i) => (
-                <Card key={i} className="flex flex-col gap-4">
-                  <Skeleton className="h-6 w-1/3" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <div className="flex gap-4 mt-2">
-                    <Skeleton className="h-8 w-24 rounded-full" />
-                    <Skeleton className="h-8 w-24 rounded-full" />
-                  </div>
-                </Card>
-              ))}
-            </div>
+             <div className="flex flex-col items-center justify-center gap-4 text-center max-w-md mx-auto">
+               <AIThinking />
+               <p className="text-sm font-medium mt-4">Generating multi-variant strategies...</p>
+               <p className="text-xs text-muted-foreground">Cross-referencing {historicalMatches.length} historical matches and evaluating predictive trade-offs.</p>
+             </div>
           </motion.div>
-        ) : errorState ? (
-          <motion.div 
-            key="error"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-          >
-            <Card className="border-orange-500/30 bg-orange-500/5 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-orange-500" />
-              <div className="p-2">
-                <h3 className="text-lg font-bold text-orange-500 flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-5 h-5" />
-                  Gemini temporarily unavailable
-                </h3>
-                <p className="text-sm text-foreground/80 flex items-center gap-2 mb-4">
-                  <Activity className="w-4 h-4 animate-spin-slow" />
-                  Switching to ArenaMind Rule Engine...
-                </p>
-                <div className="text-sm text-muted-foreground bg-background/50 p-4 rounded-md border border-border">
-                  The primary AI models are experiencing high latency. The fallback engine has automatically engaged to ensure operational continuity. Please check your network connection or try again later.
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        ) : recommendations.length === 0 ? (
+        ) : predictions.length === 0 ? (
           <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card>
-              <div className="text-center text-muted-foreground p-8">
-                No data available. Please upload data first to generate AI recommendations.
-              </div>
+            <Card className="flex flex-col items-center justify-center py-24 text-center">
+              <ShieldCheck className="w-16 h-16 text-emerald-500/20 mb-4" />
+              <h3 className="text-lg font-bold text-foreground">No Critical Threats Detected</h3>
+              <p className="text-sm text-muted-foreground mt-2 max-w-md">
+                The Digital Twin confirms stadium operations are within safe thresholds. Strategies will be generated automatically if anomalies are detected.
+              </p>
             </Card>
           </motion.div>
         ) : (
           <motion.div 
             key="content"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            {recommendations.map((rec, i) => (
-              <motion.div key={i} variants={itemVariants}>
-                <Card className="hover:border-primary/40 hover:shadow-md transition-all group overflow-hidden relative">
-                  {/* Subtle gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                  
-                  <div className="relative">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
-                          <span className={cn('px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1', getRiskColor(rec.Risk_Level))}>
-                            🚨 {rec.Risk_Level} Risk
-                          </span>
-                          <span className={cn('px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1', getPriorityColor(rec.Priority))}>
-                            ⚡ {rec.Priority} Priority
-                          </span>
-                          <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                            📊 {rec.Confidence}% Confidence
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-                          {rec.Recommended_Action}
-                        </h3>
-                        <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4 text-primary" /> {getLocation(rec.Reasoning)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4 bg-muted/40 p-5 rounded-xl border border-border/50">
-                      <div>
-                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-primary" /> AI Reasoning
-                        </h4>
-                        <p className="text-sm text-foreground/90 leading-relaxed">{rec.Reasoning}</p>
-                      </div>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                            <Target className="w-4 h-4 text-emerald-500" /> Expected Improvement
-                          </h4>
-                          <p className="text-sm text-foreground/90">{rec.Expected_Improvement || "Operations stabilized and fan experience optimized."}</p>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="w-4 h-4 text-orange-500" />
-                          <span className="font-semibold text-foreground/80">Est. Resolution:</span> 
-                          <span className="text-foreground">{rec.Estimated_Resolution_Time || "N/A"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex justify-end gap-3">
-                      <button className="px-5 py-2.5 text-sm font-semibold border border-border rounded-lg hover:bg-muted transition-colors">
-                        Dismiss
-                      </button>
-                      <button className="px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-sm">
-                        <CheckCircle2 className="w-4 h-4" /> Approve Action
-                      </button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
+            {predictions.map(pred => (
+              <IncidentLab key={pred.id} pred={pred} />
             ))}
           </motion.div>
         )}

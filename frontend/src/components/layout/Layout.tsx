@@ -1,12 +1,30 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, UploadCloud, Sparkles, BarChart2, Settings, Bell, Search, Menu, MapPin, Bot, UserCog, Shield, Radio } from 'lucide-react';
+import { LayoutDashboard, UploadCloud, Sparkles, BarChart2, Settings, Bell, Search, Menu, MapPin, Bot, UserCog, Shield, Radio, Brain } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useStore } from '../../store/useStore';
+import { NotificationDrawer } from '../ui/NotificationDrawer';
 
 export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const location = useLocation();
+  const { data, simulationSettings, readinessScore, notifications } = useStore();
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+  const unreadNotifs = notifications.filter(n => !n.read).length;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const overallRisk = data.length > 0 
+    ? (data.some(d => (d.crowd_count * simulationSettings.crowdMultiplier) > 70000) ? 'High' : 'Normal')
+    : 'No Data';
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
@@ -17,6 +35,7 @@ export function Layout() {
     { name: 'Ops Copilot', path: '/copilot', icon: <UserCog size={20} /> },
     { name: 'Command Center', path: '/command-center', icon: <Shield size={20} /> },
     { name: 'AI Recommendations', path: '/recommendations', icon: <Sparkles size={20} /> },
+    { name: 'Tournament Intelligence', path: '/intelligence', icon: <Brain size={20} /> },
     { name: 'Reports', path: '/reports', icon: <BarChart2 size={20} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> },
   ];
@@ -80,6 +99,48 @@ export function Layout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        
+        {/* Executive Status Ribbon */}
+        <div className="h-8 bg-zinc-950 text-white flex items-center justify-between px-4 sm:px-6 text-xs font-medium border-b border-zinc-800">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-emerald-400">ArenaMind Intelligence</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 text-zinc-400 border-l border-zinc-700 pl-4">
+              <span>{currentTime}</span>
+              <span className="px-1">•</span>
+              <span>New York / New Jersey Stadium</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden md:inline text-zinc-400">Dataset: {data.length} records</span>
+            <span className="hidden md:inline text-zinc-400">Sim: {simulationSettings.crowdMultiplier}x Crowd</span>
+            <div className="flex items-center gap-2 border-l border-zinc-700 pl-4">
+              <span className="text-zinc-400">Readiness:</span>
+              <span className={cn(
+                "font-bold",
+                readinessScore >= 80 ? "text-emerald-400" :
+                readinessScore >= 60 ? "text-orange-400" :
+                "text-red-400"
+              )}>
+                {readinessScore}%
+              </span>
+            </div>
+            <div className="flex items-center gap-2 border-l border-zinc-700 pl-4">
+              <span className="text-zinc-400">Overall Risk:</span>
+              <span className={cn(
+                "px-2 py-0.5 rounded-full",
+                overallRisk === 'High' ? "bg-red-500/20 text-red-400" :
+                overallRisk === 'Normal' ? "bg-emerald-500/20 text-emerald-400" :
+                "bg-zinc-800 text-zinc-400"
+              )}>
+                {overallRisk}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Top Navbar */}
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
           <div className="flex items-center gap-4">
@@ -102,9 +163,14 @@ export function Layout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted">
+            <button 
+              onClick={() => setNotificationOpen(true)}
+              className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
+            >
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card"></span>
+              {unreadNotifs > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card animate-pulse"></span>
+              )}
             </button>
             <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
               AD
@@ -143,6 +209,11 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <NotificationDrawer 
+        isOpen={notificationOpen} 
+        onClose={() => setNotificationOpen(false)} 
+      />
     </div>
   );
 }
