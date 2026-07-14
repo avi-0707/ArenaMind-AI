@@ -2,7 +2,15 @@
 
 **The Autonomous Decision Intelligence Platform for FIFA World Cup 2026 Operations.**
 
+
 ![ArenaMind AI Banner](https://img.shields.io/badge/Status-Release_Candidate-success) ![React](https://img.shields.io/badge/React-18-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal) ![Gemini](https://img.shields.io/badge/AI-Gemini_2.5_Flash-orange)
+
+<!-- Screenshots 1-5 (use uploaded files at repo root) -->
+![Screenshot 1](ScreenShot%201%20arenamind%20AI.png)
+![Screenshot 2](ScreenShot%202%20arenamind%20AI.png)
+![Screenshot 3](ScreenShot%203%20arenamind%20AI.png)
+![Screenshot 4](ScreenShot%204%20arenamind%20AI.png)
+![Screenshot 5](ScreenShot%205%20arenamind%20AI.png)
 
 ArenaMind AI transforms complex stadium telemetry into actionable, executive-level decision intelligence. It is a premium digital twin platform designed specifically to optimize crowd dynamics, volunteer deployment, security, and accessibility for large-scale mega-events like the FIFA World Cup.
 
