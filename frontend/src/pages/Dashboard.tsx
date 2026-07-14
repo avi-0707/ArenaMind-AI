@@ -14,6 +14,7 @@ import { Line as LineChart } from 'react-chartjs-2';
 import { Card } from '../components/ui/Card';
 import { PageTransition } from '../components/layout/PageTransition';
 import { TimelineFeed } from '../components/ui/TimelineFeed';
+import { PremiumStadiumHeatmap } from '../components/ui/PremiumStadiumHeatmap';
 import { PredictiveDashboard } from '../components/ui/PredictiveDashboard';
 import { AIThreatMatrix } from '../components/ui/AIThreatMatrix';
 import { Users, AlertTriangle, UserCheck, Activity, MapPin, Brain, TrendingUp, Clock, ShieldAlert, HeartPulse, Accessibility, Car, Zap, Megaphone, Shield, Radio, Archive } from 'lucide-react';
@@ -439,52 +440,17 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Dynamic Heatmap */}
-        <Card title="Dynamic Stadium Heatmap" className="lg:col-span-2 relative overflow-hidden">
-          <p className="text-xs text-muted-foreground mb-4">Live tracking of crowd density across all generated gates.</p>
-          <div className="relative w-full aspect-[4/3] max-h-[500px] bg-muted/10 border border-border rounded-xl flex items-center justify-center p-8">
-            
-            {/* Stadium Field */}
-            <div className="absolute w-[50%] h-[40%] border-4 border-muted-foreground/20 rounded-[30%] flex items-center justify-center bg-card shadow-inner">
-              <div className="text-center font-bold text-muted-foreground/30 text-xl md:text-3xl tracking-widest">PITCH</div>
+        <Card title="Dynamic Stadium Heatmap" className="lg:col-span-2 relative overflow-hidden p-0 sm:p-0">
+          <div className="p-4 md:p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Live tracking of crowd density and AI predictions across all generated gates.</p>
             </div>
-
-            {/* Dynamic Gates */}
-            {dynamicGates.map((g) => {
-              const details = getGateDetails(g.name);
-              const risk = details ? details.riskLevel : 'Low';
-              const color = getHeatmapColor(risk);
-              const isCritical = risk === 'Critical';
-
-              return (
-                <motion.button
-                  key={g.name}
-                  onClick={() => setSelectedGate(g.name)}
-                  style={{ left: g.x, top: g.y, backgroundColor: color }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full text-white font-bold flex items-center justify-center shadow-lg transition-colors focus:outline-none z-10 hover:brightness-110 group ${selectedGate === g.name ? 'ring-4 ring-offset-2 ring-primary bg-background' : ''}`}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <MapPin size={18} className={selectedGate === g.name ? `text-[${color}]` : 'text-white'} />
-                  
-                  {isCritical && (
-                    <span className="absolute inset-0 rounded-full animate-ping opacity-75" style={{ backgroundColor: color }}></span>
-                  )}
-
-                  {/* Hover Tooltip */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs font-bold px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    {g.name}: {details?.crowd_count?.toLocaleString() || 0}
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-
-          {/* Animated Legend */}
-          <div className="mt-4 flex items-center justify-center gap-4 text-xs font-medium text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500" /> Low</span>
-            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-yellow-500" /> Moderate</span>
-            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-orange-500" /> High</span>
-            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" /> Critical</span>
+            <PremiumStadiumHeatmap 
+              gates={dynamicGates.map(g => ({ name: g.name }))}
+              getGateDetails={getGateDetails}
+              selectedGate={selectedGate}
+              onSelectGate={setSelectedGate}
+            />
           </div>
         </Card>
 
