@@ -68,7 +68,7 @@ export function OpsCopilot() {
       
       const resData = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: resData.response }]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { role: 'error', content: "API_ERROR" }]);
     } finally {
       setIsLoading(false);
