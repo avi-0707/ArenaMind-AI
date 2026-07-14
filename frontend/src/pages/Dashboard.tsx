@@ -63,6 +63,7 @@ const AnimatedCounter = React.memo(({ value }: { value: number }) => {
     };
 
     requestAnimationFrame(animate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return <span>{displayValue.toLocaleString()}</span>;
@@ -236,7 +237,7 @@ export function Dashboard() {
       totalSecurity,
       totalTransport
     };
-  }, [processedData]);
+  }, [processedData, simulationSettings.weatherOverride]);
 
   const gateDetails = selectedGate ? getGateDetails(selectedGate) : null;
 

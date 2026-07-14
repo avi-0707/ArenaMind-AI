@@ -61,7 +61,7 @@ export function MatchDayCompanion() {
       
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { role: 'error', content: "API_ERROR" }]);
     } finally {
       setIsLoading(false);
