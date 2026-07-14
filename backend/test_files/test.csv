@@ -1,0 +1,4 @@
+timestamp,gate,crowd_count,incident_type,volunteers_available,weather,language
+2026-07-10 18:00,Gate A,8500.0,,25.0,Sunny,English
+2026-07-10 18:00,Gate B,,Medical Emergency,,,
+2026-07-10 18:00,Gate C,4500.0,,15.0,,

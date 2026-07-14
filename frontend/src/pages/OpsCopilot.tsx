@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { PageTransition } from '../components/layout/PageTransition';
 import { Card } from '../components/ui/Card';
-import { BouncingDots } from '../components/ui/BouncingDots';
+import { AIThinking } from '../components/ui/AIThinking';
 import { Bot, User, Send, FileText, Globe, AlertTriangle, Users, AlertCircle, Activity } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useTypingEffect } from '../hooks/useTypingEffect';
@@ -164,8 +164,8 @@ export function OpsCopilot() {
                 <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-blue-500" />
                 </div>
-                <div className="px-5 py-4 rounded-2xl bg-card border border-border rounded-tl-sm text-muted-foreground text-sm flex items-center shadow-sm">
-                  <BouncingDots />
+                <div className="flex flex-col mb-4 max-w-[80%] mr-auto items-start">
+                  <AIThinking />
                 </div>
               </motion.div>
             )}
