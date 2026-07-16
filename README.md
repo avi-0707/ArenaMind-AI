@@ -41,7 +41,7 @@ ArenaMind AI utilizes a decoupled modern architecture:
 
 - **Frontend**: React 18, Vite, TypeScript, TailwindCSS, Zustand, Framer Motion, Chart.js, Lucide React.
 - **Backend**: Python 3.10+, FastAPI, Pandas, Pydantic, Uvicorn.
-- **AI**: Google GenAI SDK (`gemini-2.5-flash`).
+- **AI**: Google GenAI SDK (`gemini-2.0-flash`).
 
 ---
 

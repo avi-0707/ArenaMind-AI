@@ -5,12 +5,20 @@ from google import genai
 from app.schemas import StadiumDataRow, RecommendationResponse, Recommendation
 from app.core.config import settings
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def _get_api_key(user_api_key: Optional[str]) -> str:
     """Determine which API key to use. Priority: User > Server"""
+    logger.info(f"API Provider Selection: Evaluating keys. User Key Present: {bool(user_api_key)}, Server Key Present: {bool(settings.GEMINI_API_KEY)}")
     if user_api_key and user_api_key.strip():
+        logger.info("API Provider Selection: Using Personal User API Key")
         return user_api_key.strip()
-    if settings.GEMINI_API_KEY:
-        return settings.GEMINI_API_KEY
+    if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip():
+        logger.info("API Provider Selection: Using Server-side Fallback (Complimentary) API Key")
+        return settings.GEMINI_API_KEY.strip()
+    logger.error("API Provider Selection Failed: No API keys available in environment or request.")
     raise ValueError("No Gemini API key available. Configure server API key or provide a personal key.")
 
 def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
@@ -98,7 +106,7 @@ def generate_recommendations(data: List[StadiumDataRow], user_api_key: Optional[
         """
         
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
         )
         
@@ -115,12 +123,12 @@ def generate_recommendations(data: List[StadiumDataRow], user_api_key: Optional[
         return RecommendationResponse(**parsed_json)
         
     except Exception as e:
-        print(f"Gemini API Error: {e}")
-        print("Falling back to local rule-based engine.")
+        logger.error(f"Gemini API Error (Recommendations): {e}", exc_info=True)
         # If it's a 401/403 or quota error and it's the user's key, we should let the frontend know, 
         # but the fallback engine covers failures smoothly for now. To strictly bubble up the auth error:
         if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
             raise ValueError(f"Invalid API Key: {e}")
+        logger.info("Falling back to local rule-based engine.")
         return _get_fallback_recommendations(data)
 
 def generate_companion_response(query: str, context: str = "", user_api_key: Optional[str] = None) -> str:
@@ -144,13 +152,13 @@ def generate_companion_response(query: str, context: str = "", user_api_key: Opt
         """
         
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
         )
         
         return response.text.strip()
     except Exception as e:
-        print(f"Companion AI Error: {e}")
+        logger.error(f"Companion AI Error: {e}", exc_info=True)
         if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
             raise ValueError(f"Invalid API Key: {e}")
         return "I'm having trouble connecting to my brain right now. Please try asking again in a moment or find a nearby volunteer for immediate assistance."
@@ -175,13 +183,13 @@ def generate_copilot_response(query: str, context: str = "", user_api_key: Optio
         """
         
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
         )
         
         return response.text.strip()
     except Exception as e:
-        print(f"Copilot AI Error: {e}")
+        logger.error(f"Copilot AI Error: {e}", exc_info=True)
         if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
             raise ValueError(f"Invalid API Key: {e}")
         return "Error connecting to AI backend. Please refer to your physical handbook."
@@ -191,10 +199,10 @@ def verify_api_key(user_api_key: str) -> bool:
     try:
         client = genai.Client(api_key=user_api_key)
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents="Respond with 'OK'",
         )
         return True
     except Exception as e:
-        print(f"Verify API Key Error: {e}")
+        logger.error(f"Verify API Key Error: {e}", exc_info=True)
         return False
