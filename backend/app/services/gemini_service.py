@@ -1,25 +1,13 @@
 import os
 import json
-from typing import List, Optional
+import logging
+from typing import List
 from google import genai
 from app.schemas import StadiumDataRow, RecommendationResponse, Recommendation
 from app.core.config import settings
 
-import logging
-
 logger = logging.getLogger(__name__)
 
-def _get_api_key(user_api_key: Optional[str]) -> str:
-    """Determine which API key to use. Priority: User > Server"""
-    logger.info(f"API Provider Selection: Evaluating keys. User Key Present: {bool(user_api_key)}, Server Key Present: {bool(settings.GEMINI_API_KEY)}")
-    if user_api_key and user_api_key.strip():
-        logger.info("API Provider Selection: Using Personal User API Key")
-        return user_api_key.strip()
-    if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip():
-        logger.info("API Provider Selection: Using Server-side Fallback (Complimentary) API Key")
-        return settings.GEMINI_API_KEY.strip()
-    logger.error("API Provider Selection Failed: No API keys available in environment or request.")
-    raise ValueError("No Gemini API key available. Configure server API key or provide a personal key.")
 
 def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
     recs = []
@@ -68,11 +56,10 @@ def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationR
 
     return RecommendationResponse(recommendations=recs[:5]) # limit to 5
 
-def generate_recommendations(data: List[StadiumDataRow], user_api_key: Optional[str] = None) -> RecommendationResponse:
-    try:
-        api_key = _get_api_key(user_api_key)
-    except ValueError as e:
-        print(f"Error: {e}")
+def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        print("No GEMINI_API_KEY found, using fallback engine.")
         return _get_fallback_recommendations(data)
 
     try:
@@ -123,19 +110,13 @@ def generate_recommendations(data: List[StadiumDataRow], user_api_key: Optional[
         return RecommendationResponse(**parsed_json)
         
     except Exception as e:
-        logger.error(f"Gemini API Error (Recommendations): {e}", exc_info=True)
-        # If it's a 401/403 or quota error and it's the user's key, we should let the frontend know, 
-        # but the fallback engine covers failures smoothly for now. To strictly bubble up the auth error:
-        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
-            raise ValueError(f"Invalid API Key: {e}")
-        logger.info("Falling back to local rule-based engine.")
+        logger.error(f"Gemini API Error in generate_recommendations: {e}", exc_info=True)
         return _get_fallback_recommendations(data)
 
-def generate_companion_response(query: str, context: str = "", user_api_key: Optional[str] = None) -> str:
-    try:
-        api_key = _get_api_key(user_api_key)
-    except ValueError as e:
-        return "I'm sorry, my AI features are currently offline because the Gemini API key is not configured."
+def generate_companion_response(query: str, context: str = "") -> str:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        return "I'm sorry, my AI features are currently offline because the Gemini API key is not configured. Please contact the administrator."
 
     try:
         client = genai.Client(api_key=api_key)
@@ -159,14 +140,11 @@ def generate_companion_response(query: str, context: str = "", user_api_key: Opt
         return response.text.strip()
     except Exception as e:
         logger.error(f"Companion AI Error: {e}", exc_info=True)
-        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
-            raise ValueError(f"Invalid API Key: {e}")
         return "I'm having trouble connecting to my brain right now. Please try asking again in a moment or find a nearby volunteer for immediate assistance."
 
-def generate_copilot_response(query: str, context: str = "", user_api_key: Optional[str] = None) -> str:
-    try:
-        api_key = _get_api_key(user_api_key)
-    except ValueError as e:
+def generate_copilot_response(query: str, context: str = "") -> str:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
         return "Ops Copilot is currently offline. Missing API Key."
 
     try:
@@ -190,19 +168,4 @@ def generate_copilot_response(query: str, context: str = "", user_api_key: Optio
         return response.text.strip()
     except Exception as e:
         logger.error(f"Copilot AI Error: {e}", exc_info=True)
-        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
-            raise ValueError(f"Invalid API Key: {e}")
         return "Error connecting to AI backend. Please refer to your physical handbook."
-
-def verify_api_key(user_api_key: str) -> bool:
-    """Verifies if the provided API key is valid by making a lightweight request."""
-    try:
-        client = genai.Client(api_key=user_api_key)
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents="Respond with 'OK'",
-        )
-        return True
-    except Exception as e:
-        logger.error(f"Verify API Key Error: {e}", exc_info=True)
-        return False

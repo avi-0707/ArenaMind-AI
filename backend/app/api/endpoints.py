@@ -1,5 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body, Header
-from pydantic import BaseModel
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body
 from typing import List
 import pandas as pd
 import io
@@ -129,60 +128,41 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 @router.post("/recommendations", response_model=RecommendationResponse)
-def get_recommendations(data: List[StadiumDataRow] = Body(...), x_api_key: str = Header(None)):
+def get_recommendations(data: List[StadiumDataRow] = Body(...)):
     if not data:
         logger.warning("Recommendations requested with empty data")
         raise HTTPException(status_code=400, detail="No data provided")
 
     logger.info(f"Generating AI recommendations for {len(data)} records")
     try:
-        return generate_recommendations(data, user_api_key=x_api_key)
-    except ValueError as ve:
-        raise HTTPException(status_code=403, detail=str(ve))
+        return generate_recommendations(data)
     except Exception as e:
         logger.error(f"Error generating recommendations: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate recommendations")
 
 from app.schemas import CompanionRequest
-from app.services.gemini_service import generate_companion_response, generate_copilot_response, verify_api_key
+from app.services.gemini_service import generate_companion_response, generate_copilot_response
 
 @router.post("/companion")
-def get_companion_response(request: CompanionRequest = Body(...), x_api_key: str = Header(None)):
+def get_companion_response(request: CompanionRequest = Body(...)):
     if not request.query:
         raise HTTPException(status_code=400, detail="No query provided")
         
     try:
-        response_text = generate_companion_response(request.query, request.context, user_api_key=x_api_key)
+        response_text = generate_companion_response(request.query, request.context)
         return {"response": response_text}
-    except ValueError as ve:
-        raise HTTPException(status_code=403, detail=str(ve))
     except Exception as e:
         logger.error(f"Error generating companion response: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate companion response")
 
 @router.post("/copilot")
-def get_copilot_response(request: CompanionRequest = Body(...), x_api_key: str = Header(None)):
+def get_copilot_response(request: CompanionRequest = Body(...)):
     if not request.query:
         raise HTTPException(status_code=400, detail="No query provided")
         
     try:
-        response_text = generate_copilot_response(request.query, request.context, user_api_key=x_api_key)
+        response_text = generate_copilot_response(request.query, request.context)
         return {"response": response_text}
-    except ValueError as ve:
-        raise HTTPException(status_code=403, detail=str(ve))
     except Exception as e:
         logger.error(f"Error generating copilot response: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate copilot response")
-
-class VerifyKeyRequest(BaseModel):
-    api_key: str
-
-@router.post("/verify-key")
-def verify_key(request: VerifyKeyRequest):
-    if not request.api_key:
-        raise HTTPException(status_code=400, detail="No API key provided")
-    is_valid = verify_api_key(request.api_key)
-    if is_valid:
-        return {"status": "ok", "message": "API key is valid"}
-    else:
-        raise HTTPException(status_code=403, detail="Invalid API key")

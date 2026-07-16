@@ -12,6 +12,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
+@app.on_event("startup")
+async def startup_event():
+    if not settings.GEMINI_API_KEY or not settings.GEMINI_API_KEY.strip():
+        logger.error("STARTUP ERROR: GEMINI_API_KEY is not configured in the environment. AI features will fail.")
+    else:
+        logger.info("Startup Check: GEMINI_API_KEY is present.")
 start_time = time.time()
 
 # Set up CORS dynamically
