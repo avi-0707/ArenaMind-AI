@@ -20,7 +20,7 @@ df.to_json('test_files/test.json', orient='records')
 
 print("Created test files with missing/empty values.")
 
-BASE_URL = 'http://127.0.0.1:9999/api'
+BASE_URL = 'http://127.0.0.1:8000/api'
 
 def test_upload(file_path):
     print(f"\n--- Testing {file_path} ---")

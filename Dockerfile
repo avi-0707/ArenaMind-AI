@@ -10,11 +10,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend /app/backend
 
 # Set PYTHONPATH so the app module can be found
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
 
 # Expose port (Koyeb uses 8000 by default or reads the PORT env var)
 ENV PORT=8000
 EXPOSE 8000
 
 # Start the application
-CMD uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT

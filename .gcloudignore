@@ -1,0 +1,11 @@
+.git
+.gitignore
+frontend/
+screenshots/
+render.yaml
+*.png
+*.jpg
+.env
+
+.venv/
+__pycache__/

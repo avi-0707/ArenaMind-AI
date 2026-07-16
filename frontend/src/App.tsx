@@ -37,7 +37,20 @@ function PageLoader() {
   )
 }
 
+import { useAIOptionsStore } from './store/useAIOptionsStore'
+const Welcome = lazy(() => import('./pages/Welcome').then(m => ({ default: m.Welcome })))
+
 function App() {
+  const { aiMode } = useAIOptionsStore()
+
+  if (aiMode === null) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <Welcome />
+      </Suspense>
+    )
+  }
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
