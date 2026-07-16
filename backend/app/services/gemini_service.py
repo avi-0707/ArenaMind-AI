@@ -1,9 +1,17 @@
 import os
 import json
-from typing import List
+from typing import List, Optional
 from google import genai
 from app.schemas import StadiumDataRow, RecommendationResponse, Recommendation
 from app.core.config import settings
+
+def _get_api_key(user_api_key: Optional[str]) -> str:
+    """Determine which API key to use. Priority: User > Server"""
+    if user_api_key and user_api_key.strip():
+        return user_api_key.strip()
+    if settings.GEMINI_API_KEY:
+        return settings.GEMINI_API_KEY
+    raise ValueError("No Gemini API key available. Configure server API key or provide a personal key.")
 
 def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
     recs = []
@@ -52,10 +60,11 @@ def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationR
 
     return RecommendationResponse(recommendations=recs[:5]) # limit to 5
 
-def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
-    api_key = settings.GEMINI_API_KEY
-    if not api_key:
-        print("No GEMINI_API_KEY found, using fallback engine.")
+def generate_recommendations(data: List[StadiumDataRow], user_api_key: Optional[str] = None) -> RecommendationResponse:
+    try:
+        api_key = _get_api_key(user_api_key)
+    except ValueError as e:
+        print(f"Error: {e}")
         return _get_fallback_recommendations(data)
 
     try:
@@ -108,12 +117,17 @@ def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationRespon
     except Exception as e:
         print(f"Gemini API Error: {e}")
         print("Falling back to local rule-based engine.")
+        # If it's a 401/403 or quota error and it's the user's key, we should let the frontend know, 
+        # but the fallback engine covers failures smoothly for now. To strictly bubble up the auth error:
+        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
+            raise ValueError(f"Invalid API Key: {e}")
         return _get_fallback_recommendations(data)
 
-def generate_companion_response(query: str, context: str = "") -> str:
-    api_key = settings.GEMINI_API_KEY
-    if not api_key:
-        return "I'm sorry, my AI features are currently offline because the Gemini API key is not configured. Please contact the administrator."
+def generate_companion_response(query: str, context: str = "", user_api_key: Optional[str] = None) -> str:
+    try:
+        api_key = _get_api_key(user_api_key)
+    except ValueError as e:
+        return "I'm sorry, my AI features are currently offline because the Gemini API key is not configured."
 
     try:
         client = genai.Client(api_key=api_key)
@@ -137,11 +151,14 @@ def generate_companion_response(query: str, context: str = "") -> str:
         return response.text.strip()
     except Exception as e:
         print(f"Companion AI Error: {e}")
+        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
+            raise ValueError(f"Invalid API Key: {e}")
         return "I'm having trouble connecting to my brain right now. Please try asking again in a moment or find a nearby volunteer for immediate assistance."
 
-def generate_copilot_response(query: str, context: str = "") -> str:
-    api_key = settings.GEMINI_API_KEY
-    if not api_key:
+def generate_copilot_response(query: str, context: str = "", user_api_key: Optional[str] = None) -> str:
+    try:
+        api_key = _get_api_key(user_api_key)
+    except ValueError as e:
         return "Ops Copilot is currently offline. Missing API Key."
 
     try:
@@ -165,4 +182,19 @@ def generate_copilot_response(query: str, context: str = "") -> str:
         return response.text.strip()
     except Exception as e:
         print(f"Copilot AI Error: {e}")
+        if "API key not valid" in str(e) or "401" in str(e) or "403" in str(e):
+            raise ValueError(f"Invalid API Key: {e}")
         return "Error connecting to AI backend. Please refer to your physical handbook."
+
+def verify_api_key(user_api_key: str) -> bool:
+    """Verifies if the provided API key is valid by making a lightweight request."""
+    try:
+        client = genai.Client(api_key=user_api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents="Respond with 'OK'",
+        )
+        return True
+    except Exception as e:
+        print(f"Verify API Key Error: {e}")
+        return False

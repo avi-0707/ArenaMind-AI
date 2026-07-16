@@ -4,13 +4,20 @@ import { cn } from '../../lib/utils';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import { useAIOptionsStore } from '../../store/useAIOptionsStore';
 import { NotificationDrawer } from '../ui/NotificationDrawer';
+import { AISettingsModal } from '../AISettingsModal';
+import { CreditExhaustedModal } from '../CreditExhaustedModal';
 
 export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [aiSettingsOpen, setAiSettingsOpen] = useState(false);
+  
   const location = useLocation();
   const { data, simulationSettings, readinessScore, notifications } = useStore();
+  const { aiMode, complimentaryCredits } = useAIOptionsStore();
+  
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   const unreadNotifs = notifications.filter(n => !n.read).length;
@@ -163,6 +170,21 @@ export function Layout() {
           </div>
 
           <div className="flex items-center gap-4">
+            
+            <button 
+              onClick={() => setAiSettingsOpen(true)}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 hover:border-indigo-500/50 transition-all text-xs font-medium group"
+            >
+              <Sparkles className={cn("w-3.5 h-3.5", aiMode === 'personal' ? "text-cyan-400" : "text-indigo-400")} />
+              {aiMode === 'personal' ? (
+                <span className="text-slate-300">Personal API</span>
+              ) : (
+                <span className="text-slate-300">
+                  <span className={cn(complimentaryCredits <= 2 && complimentaryCredits > 0 ? "text-orange-400" : complimentaryCredits === 0 ? "text-red-400" : "")}>{complimentaryCredits}</span> / 20 Credits
+                </span>
+              )}
+            </button>
+
             <button 
               onClick={() => setNotificationOpen(true)}
               className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
@@ -172,7 +194,7 @@ export function Layout() {
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card animate-pulse"></span>
               )}
             </button>
-            <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+            <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm cursor-pointer" onClick={() => setAiSettingsOpen(true)}>
               AD
             </div>
           </div>
@@ -213,6 +235,13 @@ export function Layout() {
       <NotificationDrawer 
         isOpen={notificationOpen} 
         onClose={() => setNotificationOpen(false)} 
+      />
+      <AISettingsModal
+        isOpen={aiSettingsOpen}
+        onClose={() => setAiSettingsOpen(false)}
+      />
+      <CreditExhaustedModal
+        onConnectApi={() => setAiSettingsOpen(true)}
       />
     </div>
   );
