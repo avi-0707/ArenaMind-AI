@@ -184,7 +184,7 @@ def generate_companion_response(query: str, context: str = "") -> str:
         return response.text.strip()
     except Exception as e:
         logger.error(f"Companion AI Error: {e}", exc_info=True)
-        return "I'm having trouble connecting to my brain right now. Please try asking again in a moment or find a nearby volunteer for immediate assistance."
+        return "Credits expired"
 
 def generate_copilot_response(query: str, context: str = "") -> str:
     api_key = settings.GEMINI_API_KEY
@@ -212,4 +212,4 @@ def generate_copilot_response(query: str, context: str = "") -> str:
         return response.text.strip()
     except Exception as e:
         logger.error(f"Copilot AI Error: {e}", exc_info=True)
-        return "Error connecting to AI backend. Please refer to your physical handbook."
+        return "Credits expired"
