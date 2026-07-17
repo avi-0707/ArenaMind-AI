@@ -12,3 +12,10 @@ __pycache__
 .venv
 venv
 env
+venv2
+venv3
+backend/venv2
+backend/venv3
+*test_*.py
+find_model.py
+list_models.py
