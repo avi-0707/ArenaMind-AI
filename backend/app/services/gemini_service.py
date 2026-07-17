@@ -1,15 +1,43 @@
 import os
 import json
 import logging
-from typing import List
+from typing import List, Optional
 from google import genai
 from app.schemas import StadiumDataRow, RecommendationResponse, Recommendation
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+_VALID_MODEL = None
 
-def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
+def _get_valid_model(client: genai.Client) -> str:
+    global _VALID_MODEL
+    if _VALID_MODEL:
+        return _VALID_MODEL
+        
+    logger.info("Discovering valid Gemini models...")
+    try:
+        models = client.models.list()
+        # Find a production-ready model
+        for m in models:
+            name = m.name.lower()
+            if 'flash' in name and 'preview' not in name and 'gemini' in name:
+                _VALID_MODEL = m.name
+                logger.info(f"Dynamically selected model: {_VALID_MODEL}")
+                return _VALID_MODEL
+        
+        # Fallback to the first available if no flash production model is found
+        for m in models:
+            _VALID_MODEL = m.name
+            logger.info(f"Fallback selected model: {_VALID_MODEL}")
+            return _VALID_MODEL
+            
+    except Exception as e:
+        logger.error(f"Error fetching models: {e}", exc_info=True)
+        # Safe fallback if discovery fails entirely
+        return 'gemini-1.5-flash'
+        
+    return 'gemini-1.5-flash'
     recs = []
     
     total_crowd = sum(row.crowd_count for row in data)
@@ -93,7 +121,7 @@ def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationRespon
         """
         
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model=_get_valid_model(client),
             contents=prompt,
         )
         
@@ -133,7 +161,7 @@ def generate_companion_response(query: str, context: str = "") -> str:
         """
         
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model=_get_valid_model(client),
             contents=prompt,
         )
         
@@ -161,7 +189,7 @@ def generate_copilot_response(query: str, context: str = "") -> str:
         """
         
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model=_get_valid_model(client),
             contents=prompt,
         )
         

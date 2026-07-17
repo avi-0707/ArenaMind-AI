@@ -166,3 +166,36 @@ def get_copilot_response(request: CompanionRequest = Body(...)):
     except Exception as e:
         logger.error(f"Error generating copilot response: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate copilot response")
+
+@router.get("/debug/gemini")
+def debug_gemini():
+    from app.services.gemini_service import _get_valid_model
+    from google import genai
+    from app.core.config import settings
+    import traceback
+    
+    try:
+        api_key = settings.GEMINI_API_KEY
+        if not api_key or not api_key.strip():
+            return {"success": False, "error": "GEMINI_API_KEY is empty or missing"}
+            
+        client = genai.Client(api_key=api_key.strip())
+        model_name = _get_valid_model(client)
+        
+        response = client.models.generate_content(
+            model=model_name,
+            contents="Reply with OK"
+        )
+        return {
+            "success": True,
+            "model": model_name,
+            "response": response.text,
+            "api_key_prefix": api_key[:5] + "..." if api_key else None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error_type": type(e).__name__,
+            "error_message": str(e),
+            "traceback": traceback.format_exc()
+        }
