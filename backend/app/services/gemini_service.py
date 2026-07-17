@@ -9,35 +9,52 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 _VALID_MODEL = None
+_CLIENT = None
+
+def _get_client() -> genai.Client:
+    global _CLIENT
+    if _CLIENT:
+        return _CLIENT
+        
+    api_key = settings.GEMINI_API_KEY
+    if api_key and api_key.strip():
+        try:
+            # Test if the API key works and has credits
+            client = genai.Client(api_key=api_key.strip())
+            # Quick test call
+            client.models.generate_content(model='gemini-1.5-flash', contents='test')
+            _CLIENT = client
+            return _CLIENT
+        except Exception as e:
+            logger.warning(f"Developer API Key failed (possibly depleted credits). Falling back to Vertex AI: {e}")
+            
+    # Fallback to Vertex AI using Cloud Run ADC
+    logger.info("Initializing Vertex AI Client using ADC...")
+    _CLIENT = genai.Client(vertexai=True, location="us-central1", project="gen-lang-client-0391587001")
+    return _CLIENT
 
 def _get_valid_model(client: genai.Client) -> str:
     global _VALID_MODEL
     if _VALID_MODEL:
         return _VALID_MODEL
         
-    logger.info("Discovering valid Gemini models...")
     try:
         models = client.models.list()
-        # Find a production-ready model
         for m in models:
-            name = m.name.lower()
+            name = getattr(m, 'name', '').lower()
             if 'flash' in name and 'preview' not in name and 'gemini' in name:
                 _VALID_MODEL = m.name
                 logger.info(f"Dynamically selected model: {_VALID_MODEL}")
                 return _VALID_MODEL
-        
-        # Fallback to the first available if no flash production model is found
-        for m in models:
-            _VALID_MODEL = m.name
-            logger.info(f"Fallback selected model: {_VALID_MODEL}")
-            return _VALID_MODEL
-            
     except Exception as e:
-        logger.error(f"Error fetching models: {e}", exc_info=True)
-        # Safe fallback if discovery fails entirely
-        return 'gemini-1.5-flash'
+        logger.warning(f"Could not list models: {e}")
         
-    return 'gemini-1.5-flash'
+    # Default Vertex AI models
+    _VALID_MODEL = 'gemini-1.5-flash-002'
+    logger.info(f"Fallback selected model: {_VALID_MODEL}")
+    return _VALID_MODEL
+
+def _get_fallback_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
     recs = []
     
     total_crowd = sum(row.crowd_count for row in data)
@@ -87,11 +104,10 @@ def _get_valid_model(client: genai.Client) -> str:
 def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationResponse:
     api_key = settings.GEMINI_API_KEY
     if not api_key:
-        print("No GEMINI_API_KEY found, using fallback engine.")
-        return _get_fallback_recommendations(data)
+        logger.info("No GEMINI_API_KEY found, will attempt Vertex AI fallback.")
 
     try:
-        client = genai.Client(api_key=api_key)
+        client = _get_client()
         
         # Convert data to a compact summary for the prompt
         # We don't want to send huge arrays, so we summarize the latest/most relevant or send up to 50 rows.
@@ -144,10 +160,10 @@ def generate_recommendations(data: List[StadiumDataRow]) -> RecommendationRespon
 def generate_companion_response(query: str, context: str = "") -> str:
     api_key = settings.GEMINI_API_KEY
     if not api_key:
-        return "I'm sorry, my AI features are currently offline because the Gemini API key is not configured. Please contact the administrator."
+        logger.info("No GEMINI_API_KEY found, will attempt Vertex AI fallback.")
 
     try:
-        client = genai.Client(api_key=api_key)
+        client = _get_client()
         
         prompt = f"""
         You are ArenaMind MatchDay Companion, the official intelligent assistant for fans at the FIFA World Cup 2026.
@@ -173,10 +189,10 @@ def generate_companion_response(query: str, context: str = "") -> str:
 def generate_copilot_response(query: str, context: str = "") -> str:
     api_key = settings.GEMINI_API_KEY
     if not api_key:
-        return "Ops Copilot is currently offline. Missing API Key."
+        logger.info("No GEMINI_API_KEY found, will attempt Vertex AI fallback.")
 
     try:
-        client = genai.Client(api_key=api_key)
+        client = _get_client()
         
         prompt = f"""
         You are ArenaMind Ops Copilot, an enterprise AI for FIFA World Cup 2026 Stadium Command.

@@ -3,7 +3,7 @@
 **The Autonomous Decision Intelligence Platform for FIFA World Cup 2026 Operations.**
 
 
-![ArenaMind AI Banner](https://img.shields.io/badge/Status-Release_Candidate-success) ![React](https://img.shields.io/badge/React-18-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal) ![Gemini](https://img.shields.io/badge/AI-Gemini_2.5_Flash-orange)
+![ArenaMind AI Banner](https://img.shields.io/badge/Status-Release_Candidate-success) ![React](https://img.shields.io/badge/React-18-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal) ![Gemini](https://img.shields.io/badge/AI-Gemini_2.0_Flash-orange)
 
 <!-- Screenshots 1-5 (use uploaded files at repo root) -->
 ![Screenshot 1](ScreenShot%201%20arenamind%20AI.png)
