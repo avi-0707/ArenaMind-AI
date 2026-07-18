@@ -79,23 +79,23 @@ export function ManualEntry() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Timestamp</label>
-              <input required type="time" value={form.timestamp} onChange={e => setForm({...form, timestamp: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="manual-timestamp" className="block text-sm font-medium mb-1">Timestamp</label>
+              <input required id="manual-timestamp" type="time" value={form.timestamp} onChange={e => setForm({...form, timestamp: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Gate</label>
-              <select required value={form.gate} onChange={e => setForm({...form, gate: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm">
+              <label htmlFor="manual-gate" className="block text-sm font-medium mb-1">Gate</label>
+              <select required id="manual-gate" value={form.gate} onChange={e => setForm({...form, gate: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
                 {stadiumConfig.gates.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Crowd Count</label>
-              <input required type="number" min="0" value={form.crowd_count} onChange={e => setForm({...form, crowd_count: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="manual-crowd-count" className="block text-sm font-medium mb-1">Crowd Count</label>
+              <input required id="manual-crowd-count" type="number" min="0" value={form.crowd_count} onChange={e => setForm({...form, crowd_count: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Incident Type</label>
-              <select value={form.incident_type || 'None'} onChange={e => setForm({...form, incident_type: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm">
+              <label htmlFor="manual-incident-type" className="block text-sm font-medium mb-1">Incident Type</label>
+              <select id="manual-incident-type" value={form.incident_type || 'None'} onChange={e => setForm({...form, incident_type: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
                 <option value="None">None</option>
                 <option value="Medical">Medical</option>
                 <option value="Security">Security</option>
@@ -104,8 +104,8 @@ export function ManualEntry() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Severity</label>
-              <select value={form.severity || 'Low'} onChange={e => setForm({...form, severity: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm">
+              <label htmlFor="manual-severity" className="block text-sm font-medium mb-1">Severity</label>
+              <select id="manual-severity" value={form.severity || 'Low'} onChange={e => setForm({...form, severity: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
@@ -113,17 +113,17 @@ export function ManualEntry() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Volunteers Available</label>
-              <input required type="number" min="0" value={form.volunteers_available} onChange={e => setForm({...form, volunteers_available: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="manual-volunteers" className="block text-sm font-medium mb-1">Volunteers Available</label>
+              <input required id="manual-volunteers" type="number" min="0" value={form.volunteers_available} onChange={e => setForm({...form, volunteers_available: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Weather</label>
-              <input type="text" value={form.weather} onChange={e => setForm({...form, weather: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="manual-weather" className="block text-sm font-medium mb-1">Weather</label>
+              <input id="manual-weather" type="text" value={form.weather} onChange={e => setForm({...form, weather: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Notes</label>
-              <input type="text" placeholder="Optional notes..." value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="manual-notes" className="block text-sm font-medium mb-1">Notes</label>
+              <input id="manual-notes" type="text" placeholder="Optional notes..." value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-border">
@@ -155,12 +155,12 @@ export function ManualEntry() {
           <table className="w-full text-sm text-left border-collapse">
             <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
               <tr>
-                <th className="px-4 py-3">Time</th>
-                <th className="px-4 py-3">Gate</th>
-                <th className="px-4 py-3">Crowd</th>
-                <th className="px-4 py-3">Incident</th>
-                <th className="px-4 py-3">Severity</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th scope="col" className="px-4 py-3">Time</th>
+                <th scope="col" className="px-4 py-3">Gate</th>
+                <th scope="col" className="px-4 py-3">Crowd</th>
+                <th scope="col" className="px-4 py-3">Incident</th>
+                <th scope="col" className="px-4 py-3">Severity</th>
+                <th scope="col" className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="relative">
@@ -187,8 +187,20 @@ export function ManualEntry() {
                     </td>
                     <td className="px-4 py-3">{row.severity || '-'}</td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => handleEdit(i, row)} className="p-1 text-muted-foreground hover:text-primary transition-colors"><Edit2 size={16} /></button>
-                      <button onClick={() => handleDelete(i)} className="p-1 text-muted-foreground hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                      <button 
+                        onClick={() => handleEdit(i, row)} 
+                        aria-label={`Edit record for gate ${row.gate} at ${row.timestamp}`}
+                        className="p-1 text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(i)} 
+                        aria-label={`Delete record for gate ${row.gate} at ${row.timestamp}`}
+                        className="p-1 text-muted-foreground hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </motion.tr>
                 ))}

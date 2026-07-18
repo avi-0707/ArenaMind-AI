@@ -58,42 +58,46 @@ export function StadiumConfig() {
       <div className="grid md:grid-cols-2 gap-6">
         <Card title="General Information" className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Stadium Name</label>
+            <label htmlFor="config-stadium-name" className="block text-sm font-medium mb-1">Stadium Name</label>
             <input 
+              id="config-stadium-name"
               type="text" 
               value={config.stadiumName} 
               onChange={(e) => setConfig({...config, stadiumName: e.target.value})}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Host City</label>
+              <label htmlFor="config-host-city" className="block text-sm font-medium mb-1">Host City</label>
               <input 
+                id="config-host-city"
                 type="text" 
                 value={config.hostCity} 
                 onChange={(e) => setConfig({...config, hostCity: e.target.value})}
-                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Country</label>
+              <label htmlFor="config-country" className="block text-sm font-medium mb-1">Country</label>
               <input 
+                id="config-country"
                 type="text" 
                 value={config.country} 
                 onChange={(e) => setConfig({...config, country: e.target.value})}
-                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Maximum Capacity</label>
+            <label htmlFor="config-max-capacity" className="block text-sm font-medium mb-1">Maximum Capacity</label>
             <input 
+              id="config-max-capacity"
               type="number" 
               value={config.maxCapacity} 
               min={0}
               onChange={(e) => setConfig({...config, maxCapacity: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
+              className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
             />
           </div>
         </Card>
@@ -104,8 +108,9 @@ export function StadiumConfig() {
             <div className="flex gap-2">
               <select 
                 onChange={(e) => handleGenerateGates(parseInt(e.target.value))}
-                className="px-2 py-1 bg-muted/50 border border-border rounded text-xs"
+                className="px-2 py-1 bg-muted/50 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                 defaultValue=""
+                aria-label="Auto-generate gates"
               >
                 <option value="" disabled>Auto-generate...</option>
                 <option value="4">4 Gates</option>
@@ -118,6 +123,7 @@ export function StadiumConfig() {
                 variant="outline"
                 size="icon"
                 title="Add Gate"
+                aria-label="Add new gate"
               >
                 <Plus size={16} />
               </Button>
@@ -132,11 +138,13 @@ export function StadiumConfig() {
                   type="text" 
                   value={gate} 
                   onChange={(e) => handleUpdateGate(i, e.target.value)}
-                  className="flex-1 px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
+                  aria-label={`Gate ${i + 1} name`}
+                  className="flex-1 px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
                 />
                 <button 
                   onClick={() => handleRemoveGate(i)}
-                  className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                  aria-label={`Remove Gate ${gate}`}
+                  className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -153,61 +161,61 @@ export function StadiumConfig() {
 
       <div className="grid md:grid-cols-3 gap-6">
         <Card className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><HeartPulse size={18} className="text-red-500" /> Safety & Medical</div>
+          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><HeartPulse size={18} className="text-red-500" aria-hidden="true" /> Safety & Medical</div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Emergency Exits</label>
-              <input type="number" min={0} value={config.emergencyExits} onChange={(e) => setConfig({...config, emergencyExits: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-emergency-exits" className="block text-sm font-medium mb-1 text-muted-foreground">Emergency Exits</label>
+              <input id="config-emergency-exits" type="number" min={0} value={config.emergencyExits} onChange={(e) => setConfig({...config, emergencyExits: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Medical Stations</label>
-              <input type="number" min={0} value={config.medicalStations} onChange={(e) => setConfig({...config, medicalStations: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-medical-stations" className="block text-sm font-medium mb-1 text-muted-foreground">Medical Stations</label>
+              <input id="config-medical-stations" type="number" min={0} value={config.medicalStations} onChange={(e) => setConfig({...config, medicalStations: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Emergency Assembly Areas</label>
-              <input type="number" min={0} value={config.emergencyAssemblyAreas} onChange={(e) => setConfig({...config, emergencyAssemblyAreas: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-assembly-areas" className="block text-sm font-medium mb-1 text-muted-foreground">Emergency Assembly Areas</label>
+              <input id="config-assembly-areas" type="number" min={0} value={config.emergencyAssemblyAreas} onChange={(e) => setConfig({...config, emergencyAssemblyAreas: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
           </div>
         </Card>
 
         <Card className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><Shield size={18} className="text-blue-500" /> Personnel & Staffing</div>
+          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><Shield size={18} className="text-blue-500" aria-hidden="true" /> Personnel & Staffing</div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Security Teams</label>
-              <input type="number" min={0} value={config.securityTeams} onChange={(e) => setConfig({...config, securityTeams: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-security-teams" className="block text-sm font-medium mb-1 text-muted-foreground">Security Teams</label>
+              <input id="config-security-teams" type="number" min={0} value={config.securityTeams} onChange={(e) => setConfig({...config, securityTeams: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Volunteer Capacity</label>
-              <input type="number" min={0} value={config.volunteerCapacity} onChange={(e) => setConfig({...config, volunteerCapacity: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-volunteer-capacity" className="block text-sm font-medium mb-1 text-muted-foreground">Volunteer Capacity</label>
+              <input id="config-volunteer-capacity" type="number" min={0} value={config.volunteerCapacity} onChange={(e) => setConfig({...config, volunteerCapacity: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
           </div>
         </Card>
 
         <Card className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><MapPin size={18} className="text-amber-500" /> Facilities & Logistics</div>
+          <div className="flex items-center gap-2 text-lg font-semibold mb-4 tracking-tight"><MapPin size={18} className="text-amber-500" aria-hidden="true" /> Facilities & Logistics</div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Parking Capacity</label>
-              <input type="number" min={0} value={config.parkingCapacity} onChange={(e) => setConfig({...config, parkingCapacity: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-parking-capacity" className="block text-sm font-medium mb-1 text-muted-foreground">Parking Capacity</label>
+              <input id="config-parking-capacity" type="number" min={0} value={config.parkingCapacity} onChange={(e) => setConfig({...config, parkingCapacity: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-muted-foreground">Transit Stops / Metro</label>
-              <input type="number" min={0} value={config.transitStops} onChange={(e) => setConfig({...config, transitStops: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-transit-stops" className="block text-sm font-medium mb-1 text-muted-foreground">Transit Stops / Metro</label>
+              <input id="config-transit-stops" type="number" min={0} value={config.transitStops} onChange={(e) => setConfig({...config, transitStops: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium mb-1 text-muted-foreground">Food Courts</label>
-                <input type="number" min={0} value={config.foodCourts} onChange={(e) => setConfig({...config, foodCourts: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+                <label htmlFor="config-food-courts" className="block text-xs font-medium mb-1 text-muted-foreground">Food Courts</label>
+                <input id="config-food-courts" type="number" min={0} value={config.foodCourts} onChange={(e) => setConfig({...config, foodCourts: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1 text-muted-foreground">VIP Sections</label>
-                <input type="number" min={0} value={config.vipSections} onChange={(e) => setConfig({...config, vipSections: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+                <label htmlFor="config-vip-sections" className="block text-xs font-medium mb-1 text-muted-foreground">VIP Sections</label>
+                <input id="config-vip-sections" type="number" min={0} value={config.vipSections} onChange={(e) => setConfig({...config, vipSections: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1 text-muted-foreground flex items-center gap-1"><Accessibility size={12}/> Wheelchair Access Points</label>
-              <input type="number" min={0} value={config.wheelchairAccessPoints} onChange={(e) => setConfig({...config, wheelchairAccessPoints: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm" />
+              <label htmlFor="config-wheelchair-access" className="block text-xs font-medium mb-1 text-muted-foreground flex items-center gap-1"><Accessibility size={12}/> Wheelchair Access Points</label>
+              <input id="config-wheelchair-access" type="number" min={0} value={config.wheelchairAccessPoints} onChange={(e) => setConfig({...config, wheelchairAccessPoints: parseInt(e.target.value) || 0})} className="w-full px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors" />
             </div>
           </div>
         </Card>

@@ -613,36 +613,39 @@ export function Dashboard() {
           <div className="flex flex-col justify-between h-full space-y-4 mt-2">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <label className="font-medium text-foreground text-xs uppercase">Crowd Multiplier</label>
+                <label htmlFor="sim-crowd-multiplier" className="font-medium text-foreground text-xs uppercase">Crowd Multiplier</label>
                 <span className="text-primary font-bold">{simulationSettings.crowdMultiplier.toFixed(1)}x</span>
               </div>
               <input 
+                id="sim-crowd-multiplier"
                 type="range" min="0.5" max="3.0" step="0.1" 
                 value={simulationSettings.crowdMultiplier}
                 onChange={(e) => setSimulationSettings({ crowdMultiplier: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <label className="font-medium text-foreground text-xs uppercase">Volunteer Staffing</label>
+                <label htmlFor="sim-volunteer-multiplier" className="font-medium text-foreground text-xs uppercase">Volunteer Staffing</label>
                 <span className="text-primary font-bold">{simulationSettings.volunteerMultiplier.toFixed(1)}x</span>
               </div>
               <input 
+                id="sim-volunteer-multiplier"
                 type="range" min="0.5" max="3.0" step="0.1" 
                 value={simulationSettings.volunteerMultiplier}
                 onChange={(e) => setSimulationSettings({ volunteerMultiplier: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
               />
             </div>
 
             <div className="space-y-2 pb-2">
-              <label className="block text-xs font-medium text-foreground mb-1 uppercase">Weather Scenario</label>
+              <label htmlFor="sim-weather-scenario" className="block text-xs font-medium text-foreground mb-1 uppercase">Weather Scenario</label>
               <select 
+                id="sim-weather-scenario"
                 value={simulationSettings.weatherOverride || ""}
                 onChange={(e) => setSimulationSettings({ weatherOverride: e.target.value || null })}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-primary transition-colors text-foreground shadow-sm"
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-foreground shadow-sm"
               >
                 <option value="">Default (From dataset)</option>
                 <option value="Sunny">Sunny / Clear</option>
@@ -658,7 +661,7 @@ export function Dashboard() {
         <div className="lg:col-span-2">
           {/* General charts overview */}
           <Card title="Stadium Density Trend">
-            <div className="h-[300px] w-full mt-4">
+            <div className="h-[300px] w-full mt-4" aria-label="Stadium Density Trend Chart. Displays crowd density and volunteer levels by gate. Refer to Operations Log for raw tables." role="img">
               <LineChart key={theme + simulationSettings.crowdMultiplier} data={chartData} options={chartOptions as any} />
             </div>
           </Card>

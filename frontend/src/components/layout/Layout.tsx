@@ -145,8 +145,10 @@ export function Layout() {
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <button
-              className="md:hidden text-muted-foreground hover:text-foreground"
+              className="md:hidden text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileMenuOpen}
             >
               <Menu size={24} />
             </button>
@@ -157,7 +159,8 @@ export function Layout() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-9 pr-4 py-1.5 bg-muted/50 border border-transparent focus:border-border rounded-md text-sm outline-none w-64 transition-all focus:bg-background"
+                aria-label="Search dashboard"
+                className="pl-9 pr-4 py-1.5 bg-muted/50 border border-transparent focus:border-border rounded-md text-sm outline-none w-64 transition-all focus:bg-background focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -165,14 +168,15 @@ export function Layout() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setNotificationOpen(true)}
-              className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
+              className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label={`Open notifications drawer, ${unreadNotifs} unread notifications`}
             >
               <Bell size={20} />
               {unreadNotifs > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card animate-pulse"></span>
               )}
             </button>
-            <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+            <div className="md:hidden w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm" aria-hidden="true">
               AD
             </div>
           </div>

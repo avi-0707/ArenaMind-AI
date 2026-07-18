@@ -145,42 +145,61 @@ export function UploadData() {
         <p className="text-muted-foreground text-sm">Upload schedules or enter matchday operations manually.</p>
       </div>
 
-      <div className="flex gap-4 border-b border-border">
+      <div className="flex gap-4 border-b border-border" role="tablist" aria-label="Operations Center Options">
         <button 
           onClick={() => setActiveTab('upload')}
-          className={`pb-2 text-sm font-medium transition-colors ${activeTab === 'upload' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          role="tab"
+          aria-selected={activeTab === 'upload'}
+          aria-controls="panel-upload"
+          id="tab-upload"
+          className={`pb-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded px-1 ${activeTab === 'upload' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
         >
           Upload Dataset
         </button>
         <button 
           onClick={() => setActiveTab('manual')}
-          className={`pb-2 text-sm font-medium transition-colors ${activeTab === 'manual' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          role="tab"
+          aria-selected={activeTab === 'manual'}
+          aria-controls="panel-manual"
+          id="tab-manual"
+          className={`pb-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded px-1 ${activeTab === 'manual' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
         >
           Manual MatchDay Operations
         </button>
       </div>
 
       {activeTab === 'upload' && (
-        <Card>
+        <div id="panel-upload" role="tabpanel" aria-labelledby="tab-upload">
+          <Card>
           <div 
-            className={`border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${
+            className={`border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${
               isDragging ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            tabIndex={0}
+            role="button"
+            aria-label="File upload zone. Drag and drop CSV, Excel, or JSON files here, or press enter to browse files."
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                const fileInput = document.getElementById('file-browse-input');
+                if (fileInput) fileInput.click();
+              }
+            }}
           >
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-muted rounded-full">
+              <div className="p-4 bg-muted rounded-full" aria-hidden="true">
                 <UploadCloud className="w-8 h-8 text-muted-foreground" />
               </div>
             </div>
             <h3 className="text-lg font-medium mb-2">Drag & drop your files here</h3>
             <p className="text-sm text-muted-foreground mb-6">Support for CSV, Excel (.xlsx), and JSON</p>
             
-            <label className="cursor-pointer bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+            <label className="cursor-pointer bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">
               Browse Files
-              <input type="file" className="hidden" accept=".csv,.xlsx,.json" onChange={handleFileInput} />
+              <input id="file-browse-input" type="file" className="sr-only" accept=".csv,.xlsx,.json" onChange={handleFileInput} aria-label="Choose file to upload" />
             </label>
           </div>
 
@@ -231,7 +250,8 @@ export function UploadData() {
               </Button>
             </div>
           )}
-        </Card>
+          </Card>
+        </div>
       )}
 
       {activeTab === 'manual' && (
