@@ -19,3 +19,4 @@ backend/venv3
 *test_*.py
 find_model.py
 list_models.py
+gcloud.zip
