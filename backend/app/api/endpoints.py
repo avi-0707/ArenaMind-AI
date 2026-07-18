@@ -23,20 +23,51 @@ def health_check():
 async def upload_file(file: UploadFile = File(...)):
     """
     Upload pipeline:
-    File → Pandas → Preprocess (NaN clean) → Pydantic validation → JSON response
+    File → Validation → Pandas → Preprocess (NaN clean) → Pydantic validation → JSON response
     """
+    MAX_FILE_SIZE = 10 * 1024 * 1024 # 10MB
     try:
-        logger.info(f"Received file upload: {file.filename!r} ({file.content_type})")
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="Filename is missing.")
+            
+        import os
+        safe_filename = os.path.basename(file.filename)
+        filename_lower = safe_filename.lower()
+        
+        logger.info(f"Received file upload: {safe_filename} ({file.content_type})")
+        
+        # Verify extension
+        valid_extensions = (".csv", ".xlsx", ".xls", ".json")
+        if not filename_lower.endswith(valid_extensions):
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported file format. Please upload CSV, Excel, or JSON."
+            )
+            
         contents = await file.read()
-        filename = (file.filename or "").lower()
-
-        # 1. Uploaded filename
-        print(f"DEBUG [1]: Uploaded filename: {filename}")
-
+        if len(contents) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail="File size exceeds the maximum limit of 10MB."
+            )
+            
+        # Verify MIME type
+        content_type = file.content_type or ""
+        valid_mime_types = [
+            "text/csv", "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/json", "text/plain"
+        ]
+        if content_type not in valid_mime_types and content_type != "application/octet-stream":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid file MIME type '{content_type}'."
+            )
+            
         # ── Parse raw file ────────────────────────────────────────────────────
-        if filename.endswith(".csv"):
+        if filename_lower.endswith(".csv"):
             df = pd.read_csv(io.BytesIO(contents))
-        elif filename.endswith(".xlsx") or filename.endswith(".xls"):
+        elif filename_lower.endswith(".xlsx") or filename_lower.endswith(".xls"):
             try:
                 df = pd.read_excel(io.BytesIO(contents))
             except ImportError:
@@ -45,12 +76,12 @@ async def upload_file(file: UploadFile = File(...)):
                     status_code=400,
                     detail="Excel support is not installed on the server. Please contact the administrator."
                 )
-        elif filename.endswith(".json"):
+        elif filename_lower.endswith(".json"):
             df = pd.read_json(io.BytesIO(contents))
         else:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported file format '{filename}'"
+                detail="Unsupported file format."
             )
 
         # 2. DataFrame columns
